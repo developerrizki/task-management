@@ -46,9 +46,9 @@ class ProjectController extends Controller
      */
     public function store(ProjectRequest $request): RedirectResponse
     {
-        Project::create($request->validate());
+        Project::create($request->validated());
 
-        return redirect('project.index')->with([
+        return redirect(route('project.index'))->with([
             'message' => 'Project has been successfully created'
         ]);
     }
@@ -84,9 +84,9 @@ class ProjectController extends Controller
      */
     public function update(ProjectRequest $request, Project $project): RedirectResponse
     {
-        $project->update($request->validate());
+        $project->update($request->validated());
 
-        return redirect('project.index')->with([
+        return redirect(route('project.index'))->with([
             'message' => 'Project has been successfully updated'
         ]);
     }
@@ -101,7 +101,7 @@ class ProjectController extends Controller
     {
         $project->delete();
 
-        return redirect('project.index')->with([
+        return back()->with([
             'message' => 'Project has been successfully deleted'
         ]);
     }

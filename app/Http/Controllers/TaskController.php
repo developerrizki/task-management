@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
+use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +28,9 @@ class TaskController extends Controller
         $tasks = Task::filterDataProject($request)->paginate($this->limit);
         $tasks->appends($request->all());
 
-        return view('task.index', compact('tasks'));
+        $projects = Project::all();
+
+        return view('task.index', compact('tasks', 'projects'));
     }
 
     /**
@@ -37,7 +40,8 @@ class TaskController extends Controller
      */
     public function create(): View
     {
-        return view('task.create');
+        $projects = Project::all();
+        return view('task.create', compact('projects'));
     }
 
     /**
@@ -48,9 +52,10 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $request): RedirectResponse
     {
-        Task::create($request->validate());
+        Task::create($request->validated());
+        $redirectUrl = route('task.index') . '?project=' . $request->input('project_id');
 
-        return redirect('task.index')->with([
+        return redirect($redirectUrl)->with([
             'message' => 'Task has been successfully created'
         ]);
     }
@@ -74,7 +79,8 @@ class TaskController extends Controller
      */
     public function edit(Task $task): View
     {
-        return view('task.edit', compact('task'));
+        $projects = Project::all();
+        return view('task.edit', compact('task', 'projects'));
     }
 
     /**
@@ -86,9 +92,10 @@ class TaskController extends Controller
      */
     public function update(TaskRequest $request, Task $task): RedirectResponse
     {
-        $task->update($request->validate());
+        $task->update($request->validated());
+        $redirectUrl = route('task.index') . '?project=' . $task->project_id;
 
-        return redirect('task.index')->with([
+        return redirect($redirectUrl)->with([
             'message' => 'Task has been successfully updated'
         ]);
     }
@@ -103,7 +110,7 @@ class TaskController extends Controller
     {
         $task->delete();
 
-        return redirect('task.index')->with([
+        return back()->with([
             'message' => 'Task has been successfully deleted'
         ]);
     }

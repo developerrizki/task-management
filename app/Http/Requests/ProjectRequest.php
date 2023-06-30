@@ -11,7 +11,7 @@ class ProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,14 @@ class ProjectRequest extends FormRequest
      */
     public function rules(): array
     {
+        $ruleForName = ['string', 'required'];
+
+        if (request()->method === "POST") {
+            $ruleForName = ['string', 'required', 'unique:projects,name'];
+        }
+
         return [
-            //
+            'name' => $ruleForName
         ];
     }
 }

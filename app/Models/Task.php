@@ -22,17 +22,15 @@ class Task extends Model
      *
      * @return BelongsTo
      */
-    public function belongsTo(): BelongsTo
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
 
     public function scopeFilterDataProject($model, $request)
     {
-        if ($request->has('key') && $request->has('value')) {
-            $model->whereHas('project', function ($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->input('value') . '%');
-            });
-        }
+        $model->whereHas('project', function ($query) use ($request) {
+            $query->where('id', $request->input('project'));
+        });
     }
 }
