@@ -18,6 +18,7 @@ return new class extends Migration
                 ->nullable()
                 ->default('low');
             $table->unsignedBigInteger('project_id')->nullable();
+            $table->integer('position')->default(0)->nullable();
             $table->timestamps();
 
             // Foreign Key

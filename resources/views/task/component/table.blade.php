@@ -1,7 +1,6 @@
 <table class="table table-striped">
     <thead>
     <tr>
-        <th>No</th>
         <th>Project</th>
         <th>Task Name</th>
         <th>Priority</th>
@@ -10,10 +9,9 @@
         <th>Action</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody class="row_position">
     @forelse ($tasks as $key => $task)
-        <tr>
-            <td>{{ ($tasks->currentpage()-1) * $tasks->perpage() + $key + 1 }}</td>
+        <tr id="{{ $task->id }}">
             <td>{{ optional($task->project)->name }}</td>
             <td>{{ $task->name }}</td>
             <td>{{ Str::ucfirst($task->priority) }}</td>
@@ -41,7 +39,7 @@
     @empty
         <tr>
             @if(Request::has('project') && count($tasks) === 0)
-                <td colspan="7" class="text-center">Data not available.</td>
+                <td colspan="6" class="text-center">Data not available.</td>
             @else
                 <td colspan="7" class="text-center">Please choose project first.</td>
             @endif

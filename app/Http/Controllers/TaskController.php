@@ -25,7 +25,10 @@ class TaskController extends Controller
      */
     public function index(Request $request): View
     {
-        $tasks = Task::filterDataProject($request)->paginate($this->limit);
+        $tasks = Task::filterDataProject($request)
+            ->orderBy('position', 'ASC')
+            ->paginate($this->limit);
+
         $tasks->appends($request->all());
 
         $projects = Project::all();
@@ -52,7 +55,13 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $request): RedirectResponse
     {
-        Task::create($request->validated());
+        $position = $this->getPosition($request);
+        $reqMerged = array_merge(
+            $request->validated(),
+            ['position' => $position]
+        );
+
+        Task::create($reqMerged);
         $redirectUrl = route('task.index') . '?project=' . $request->input('project_id');
 
         return redirect($redirectUrl)->with([
@@ -108,10 +117,73 @@ class TaskController extends Controller
      */
     public function destroy(Task $task): RedirectResponse
     {
+        // Put project ID
+        $projectID = $task->project_id;
+
+        // process delete
         $task->delete();
+
+        // reset position
+        $this->resetPosition($projectID);
 
         return back()->with([
             'message' => 'Task has been successfully deleted'
         ]);
+    }
+
+    /**
+     * Get position
+     *
+     * @param TaskRequest $request
+     * @return int
+     */
+    private function getPosition(TaskRequest $request): int
+    {
+        $position = 1;
+        $existPosition = Task::where('project_id', $request->input('project_id'))->count();
+
+        if ($existPosition !== 0) {
+            $position = $existPosition + 1;
+        }
+
+        return $position;
+    }
+
+    /**
+     * Process reset position after delete
+     *
+     * @param int $projectID
+     * @return void
+     */
+    private function resetPosition(int $projectID): void
+    {
+        $tasks = Task::where('project_id', $projectID)->get();
+
+        if ($tasks) {
+            foreach ($tasks as $key => $task) {
+                $task->update(['position' => $key + 1]);
+            }
+        }
+
+    }
+
+    /**
+     * Process update position
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function updatePosition(Request $request)
+    {
+        if ($request->ajax()) {
+            $positions = $request->input('position');
+
+            foreach ($positions as $key => $position) {
+                $task = Task::find($position);
+                $task->update([
+                    'position' => $key + 1
+                ]);
+            }
+        }
     }
 }

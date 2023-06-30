@@ -23,3 +23,5 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::resource('/project', \App\Http\Controllers\ProjectController::class);
 Route::resource('/task', \App\Http\Controllers\TaskController::class);
+Route::post('/task/update-position', [\App\Http\Controllers\TaskController::class, 'updatePosition'])
+    ->name('task.update.position');

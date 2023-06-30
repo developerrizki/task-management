@@ -40,3 +40,36 @@
         </div>
     </div>
 @endsection
+
+@push('script')
+    <script type="text/javascript">
+        var ajaxUrl = '{{ route('task.update.position') }}';
+
+        $( ".row_position" ).sortable({
+            delay: 150,
+            stop: function() {
+                var selectedData = new Array();
+                $('.row_position>tr').each(function() {
+                    selectedData.push($(this).attr("id"));
+                });
+                updateOrder(selectedData);
+            }
+        });
+
+
+        function updateOrder(data) {
+            console.log(data);
+            $.ajax({
+                url: ajaxUrl,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                type:'post',
+                data:{position:data},
+                success:function(){
+                    alert('Your change successfully saved');
+                }
+            })
+        }
+    </script>
+@endpush
